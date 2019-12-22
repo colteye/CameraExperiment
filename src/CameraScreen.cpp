@@ -1,7 +1,6 @@
 #include "CameraScreen.h"
 #include <time.h> 
 
-
 CameraScreen::CameraScreen(QWidget *parent) : QWidget(parent)
 {
     label = new QLabel("camera frame", this);
@@ -15,11 +14,14 @@ CameraScreen::CameraScreen(QWidget *parent) : QWidget(parent)
     resize(WIDTH, HEIGHT);
 
     camera.initialize(WIDTH, HEIGHT);
+    controller.initialize();
 }
 
 void CameraScreen::paintEvent(QPaintEvent *)
 {
     label->setPixmap(newFrame());
+
+    controller.controlLoop();
 }
 
 QPixmap CameraScreen::newFrame()
@@ -27,6 +29,5 @@ QPixmap CameraScreen::newFrame()
     QPixmap p = QPixmap();
     camera.captureImage();
     p.loadFromData((const uchar *)camera.buffer, camera.bufferLen, 0, Qt::AutoColor);
-
     return p;
 }

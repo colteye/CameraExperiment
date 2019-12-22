@@ -4,6 +4,7 @@
 #include <QTime>
 #include <QTimer>
 #include "CameraSensor.h"
+#include "CameraControl.h"
 
 #define FRAMES_PER_SEC 60
 #define WIDTH 640
@@ -19,6 +20,7 @@ public:
 protected:
     QLabel* label;
     CameraSensor camera;
+    CameraControl controller;
     void paintEvent(QPaintEvent *event) override;
     QPixmap newFrame();
 };

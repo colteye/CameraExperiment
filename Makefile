@@ -38,7 +38,7 @@ DISTNAME      = CameraGUI1.0.0
 DISTDIR = /home/pi/CameraGUI/.tmp/CameraGUI1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) -lQt5Widgets -lQt5Gui -lQt5Core -lGLESv2 -lpthread -latomic 
+LIBS          = $(SUBLIBS) -lwiringPi -lQt5Widgets -lQt5Gui -lQt5Core -lGLESv2 -lpthread -latomic 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -52,9 +52,11 @@ OBJECTS_DIR   = ./
 
 SOURCES       = src/CameraSensor.cpp \
 		src/CameraScreen.cpp \
+		src/CameraControl.cpp \
 		src/main.cpp moc_CameraScreen.cpp
 OBJECTS       = CameraSensor.o \
 		CameraScreen.o \
+		CameraControl.o \
 		main.o \
 		moc_CameraScreen.o
 DIST          = /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_pre.prf \
@@ -132,8 +134,10 @@ DIST          = /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/lex.prf \
 		CameraGUI.pro src/CameraSensor.h \
-		src/CameraScreen.h src/CameraSensor.cpp \
+		src/CameraScreen.h \
+		src/CameraControl.h src/CameraSensor.cpp \
 		src/CameraScreen.cpp \
+		src/CameraControl.cpp \
 		src/main.cpp
 QMAKE_TARGET  = CameraGUI
 DESTDIR       = 
@@ -318,8 +322,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents src/CameraSensor.h src/CameraScreen.h $(DISTDIR)/
-	$(COPY_FILE) --parents src/CameraSensor.cpp src/CameraScreen.cpp src/main.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents src/CameraSensor.h src/CameraScreen.h src/CameraControl.h $(DISTDIR)/
+	$(COPY_FILE) --parents src/CameraSensor.cpp src/CameraScreen.cpp src/CameraControl.cpp src/main.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -354,7 +358,9 @@ moc_predefs.h: /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/data/dummy.cpp
 compiler_moc_header_make_all: moc_CameraScreen.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_CameraScreen.cpp
-moc_CameraScreen.cpp: src/CameraScreen.h \
+moc_CameraScreen.cpp: src/CameraSensor.h \
+		src/CameraControl.h \
+		src/CameraScreen.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/pi/CameraGUI/moc_predefs.h -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I/home/pi/CameraGUI -I/usr/include/arm-linux-gnueabihf/qt5 -I/usr/include/arm-linux-gnueabihf/qt5/QtWidgets -I/usr/include/arm-linux-gnueabihf/qt5/QtGui -I/usr/include/arm-linux-gnueabihf/qt5/QtCore -I/usr/include/c++/8 -I/usr/include/arm-linux-gnueabihf/c++/8 -I/usr/include/c++/8/backward -I/usr/lib/gcc/arm-linux-gnueabihf/8/include -I/usr/local/include -I/usr/lib/gcc/arm-linux-gnueabihf/8/include-fixed -I/usr/include/arm-linux-gnueabihf -I/usr/include src/CameraScreen.h -o moc_CameraScreen.cpp
@@ -378,10 +384,17 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 CameraSensor.o: src/CameraSensor.cpp src/CameraSensor.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o CameraSensor.o src/CameraSensor.cpp
 
-CameraScreen.o: src/CameraScreen.cpp src/CameraScreen.h
+CameraScreen.o: src/CameraScreen.cpp src/CameraScreen.h \
+		src/CameraSensor.h \
+		src/CameraControl.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o CameraScreen.o src/CameraScreen.cpp
 
-main.o: src/main.cpp src/CameraScreen.h
+CameraControl.o: src/CameraControl.cpp src/CameraControl.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o CameraControl.o src/CameraControl.cpp
+
+main.o: src/main.cpp src/CameraScreen.h \
+		src/CameraSensor.h \
+		src/CameraControl.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o src/main.cpp
 
 moc_CameraScreen.o: moc_CameraScreen.cpp 
