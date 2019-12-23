@@ -108,7 +108,7 @@ int CameraSensor::captureImage() {
 int CameraSensor::initialize(int width, int height)
 {
     fd = open("/dev/video0", O_RDWR);
-   if ( setup(width, height) == 1) return 1;
+   if (setup(width, height) == 1) return 1;
    if (initBufferCamera() == 1) return 1;
    return 0;
     

@@ -14,13 +14,12 @@ CameraScreen::CameraScreen(QWidget *parent) : QWidget(parent)
     resize(WIDTH, HEIGHT);
 
     camera.initialize(WIDTH, HEIGHT);
-    controller.initialize();
+    controller.initialize(&camera);
 }
 
 void CameraScreen::paintEvent(QPaintEvent *)
 {
     label->setPixmap(newFrame());
-
     controller.controlLoop();
 }
 

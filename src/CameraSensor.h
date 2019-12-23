@@ -1,3 +1,6 @@
+#ifndef CAMERASENSOR_H_
+#define CAMERASENSOR_H_
+
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/videodev2.h>
@@ -23,5 +26,7 @@ protected:
     int setup(int width, int height);
     int initBufferCamera();
 };
+
+#endif
 
 
