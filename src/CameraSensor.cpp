@@ -176,14 +176,27 @@ int CameraSensor::takePicture()
         return 1;
     }
 
-    int filefd = open("/home/pi/Pictures/test.jpg", O_WRONLY | O_CREAT | O_TRUNC,
-    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    char imagePath[] = "/home/pi/Pictures/";
+    int num = numFilesDir(imagePath);
+    char finalDir [1024];
+    int result = snprintf(finalDir, 1024, "%simage_%d.jpg", imagePath, num);
 
-    write(filefd, buffer, bufferLen);
-
-    if (close(filefd) == -1)
+    if (result > 0 && result < 1024)
     {
-        perror("Closing Image");
+        int filefd = open(finalDir, O_WRONLY | O_CREAT | O_TRUNC,
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
+        write(filefd, buffer, bufferLen);
+
+        if (close(filefd) == -1)
+        {
+            perror("Closing Image");
+            return 1;
+        }
+    }
+    else 
+    {
+        perror("Creating Path");
         return 1;
     }
 
@@ -199,4 +212,24 @@ int CameraSensor::takePicture()
         return 1;
     }
     return 0;
+}
+
+int CameraSensor::numFilesDir(char *path)
+{
+    struct dirent *de;  // Pointer for directory entry
+    int numFiles = 0;
+    // opendir() returns a pointer of DIR type.
+    DIR *dr = opendir(path);
+
+    if (dr == NULL)  // opendir returns NULL if couldn't open directory
+    {
+        perror("Could not open current directory" );
+        return -1;
+    }
+
+    while ((de = readdir(dr)) != NULL)
+         numFiles++;
+
+    closedir(dr);
+    return numFiles;
 }

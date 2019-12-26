@@ -10,6 +10,7 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #define STREAM_WIDTH 640
 #define STREAM_HEIGHT 480
@@ -37,6 +38,7 @@ protected:
     int setupSensor(int width, int height, unsigned int pixFormat);
     int closeSensor();
     int initBufferCamera();
+    int numFilesDir(char *path);
 };
 
 #endif
