@@ -9,10 +9,6 @@
 #include "CameraSensor.h"
 #include "CameraControl.h"
 
-#define FRAMES_PER_SEC 30
-#define WIDTH 640
-#define HEIGHT 480 
-
 class CameraScreen : public QWidget
 {
     Q_OBJECT

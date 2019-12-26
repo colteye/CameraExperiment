@@ -33,7 +33,7 @@ void CameraControl::controlLoop()
         if (flashEnabled == 1)
         {
            digitalWrite(FLASH_LED, HIGH);
-           delay(200);
+           sensor->takePicture();
            digitalWrite(FLASH_LED, LOW);
         }
     }
@@ -43,7 +43,7 @@ void CameraControl::controlLoop()
         flashEnabled = toggleGPIO(FLASH_ENABLE_LED);
     }
 
-    memcpy(pastStates, currentStates, sizeof(pastStates)); 
+    memcpy(pastStates, currentStates, sizeof(pastStates));
 }
 
 void CameraControl::setAllLow()
