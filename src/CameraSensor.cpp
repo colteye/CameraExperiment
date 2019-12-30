@@ -2,10 +2,17 @@
 
 CameraSensor::CameraSensor()
 {
+    startStreaming();
+}
+
+int CameraSensor::startStreaming()
+{
     if (initializeSensor(STREAM_WIDTH, STREAM_HEIGHT, V4L2_PIX_FMT_MJPEG) == 1)
     {
         perror("Initializing Sensor");
+        return 1;
     }
+    return 0;
 }
 
 int CameraSensor::xioctl(int fd, int request, void *arg)
@@ -20,7 +27,6 @@ int CameraSensor::setupSensor(int width, int height, unsigned int pixFormat)
 {
     if (fd == -1)
     {
-    // couldn't find capture device
         perror("Opening Video device");
         return 1;
     }
@@ -38,7 +44,6 @@ int CameraSensor::setupSensor(int width, int height, unsigned int pixFormat)
     fmt.fmt.pix.width = width;
     fmt.fmt.pix.height = height;
     fmt.fmt.pix.pixelformat = pixFormat;
-  //  fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_JPEG;
     fmt.fmt.pix.field = V4L2_FIELD_NONE;
 
     if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt))
@@ -172,31 +177,13 @@ int CameraSensor::takePicture()
 
     if (streamFrame() == 1)
     {
-        perror("Capturing Frame");
+        perror("Capturing Photo");
         return 1;
     }
 
-    char imagePath[] = "/home/pi/Pictures/";
-    int num = numFilesDir(imagePath);
-    char finalDir [1024];
-    int result = snprintf(finalDir, 1024, "%simage_%d.jpg", imagePath, num);
-
-    if (result > 0 && result < 1024)
+    if (writeImage(buffer, bufferLen, IMAGE_PATH) == 1)
     {
-        int filefd = open(finalDir, O_WRONLY | O_CREAT | O_TRUNC,
-        S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-
-        write(filefd, buffer, bufferLen);
-
-        if (close(filefd) == -1)
-        {
-            perror("Closing Image");
-            return 1;
-        }
-    }
-    else 
-    {
-        perror("Creating Path");
+        perror("Writing File from Buffer");
         return 1;
     }
 
@@ -214,22 +201,49 @@ int CameraSensor::takePicture()
     return 0;
 }
 
-int CameraSensor::numFilesDir(char *path)
+int CameraSensor::writeImage(void *buffer, int bufferLen, const char *path)
 {
-    struct dirent *de;  // Pointer for directory entry
-    int numFiles = 0;
-    // opendir() returns a pointer of DIR type.
-    DIR *dr = opendir(path);
+    int num = numFilesDir(path);
+    char finalDir [1024];
+    int result = snprintf(finalDir, 1024, "%simage_%d.jpg", path, num);
 
-    if (dr == NULL)  // opendir returns NULL if couldn't open directory
+    if (result > 0 && result < 1024)
     {
-        perror("Could not open current directory" );
+        int filefd = open(finalDir, O_WRONLY | O_CREAT | O_TRUNC,
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
+        write(filefd, buffer, bufferLen);
+
+        if (close(filefd) == -1)
+        {
+            perror("Closing Image");
+            return 1;
+        }
+    }
+    else
+    {
+        perror("Creating Path");
+        return 1;
+    }
+    return 0;
+}
+
+int CameraSensor::numFilesDir(const char *path)
+{
+    struct dirent *dirptr; //Directory entry ptr
+    int numFiles = 0; //Current number of files
+
+    DIR *currentDir = opendir(path);
+
+    if (currentDir == NULL)  // opendir returns NULL if couldn't open directory
+    {
+        perror("Could not open directory" );
         return -1;
     }
 
-    while ((de = readdir(dr)) != NULL)
+    while ((dirptr = readdir(currentDir)) != NULL)
          numFiles++;
 
-    closedir(dr);
+    closedir(currentDir);
     return numFiles;
 }

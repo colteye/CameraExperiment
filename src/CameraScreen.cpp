@@ -1,5 +1,5 @@
 #include "CameraScreen.h"
-#include <time.h> 
+#include <time.h>
 
 CameraScreen::CameraScreen(QWidget *parent) : QWidget(parent)
 {
@@ -19,7 +19,7 @@ CameraScreen::CameraScreen(QWidget *parent) : QWidget(parent)
 void CameraScreen::paintEvent(QPaintEvent *)
 {
     controller.controlLoop(); //Should be the first command, can cause trouble if not.
-    label->setPixmap(newFrame());
+    if (controller.getMode() == STREAM_MODE) label->setPixmap(newFrame());
 }
 
 QPixmap CameraScreen::newFrame()

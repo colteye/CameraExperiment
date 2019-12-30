@@ -50,15 +50,20 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = src/CameraSensor.cpp \
-		src/CameraScreen.cpp \
-		src/CameraControl.cpp \
-		src/main.cpp moc_CameraScreen.cpp
-OBJECTS       = CameraSensor.o \
-		CameraScreen.o \
-		CameraControl.o \
-		main.o \
-		moc_CameraScreen.o
+SOURCES       = src/Event.cpp \
+		src/EventHandler.cpp \
+		src/BaseEventSystem.cpp \
+		src/CObject.cpp \
+		src/GPIOButton.cpp \
+		src/FlashEnableButton.cpp \
+		src/main.cpp 
+OBJECTS       = Event.o \
+		EventHandler.o \
+		BaseEventSystem.o \
+		CObject.o \
+		GPIOButton.o \
+		FlashEnableButton.o \
+		main.o
 DIST          = /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/common/unix.conf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/common/linux.conf \
@@ -133,11 +138,17 @@ DIST          = /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/lex.prf \
-		CameraGUI.pro src/CameraSensor.h \
-		src/CameraScreen.h \
-		src/CameraControl.h src/CameraSensor.cpp \
-		src/CameraScreen.cpp \
-		src/CameraControl.cpp \
+		CameraGUI.pro src/Event.h \
+		src/EventHandler.h \
+		src/BaseEventSystem.h \
+		src/CObject.h \
+		src/GPIOButton.h \
+		src/FlashEnableButton.h src/Event.cpp \
+		src/EventHandler.cpp \
+		src/BaseEventSystem.cpp \
+		src/CObject.cpp \
+		src/GPIOButton.cpp \
+		src/FlashEnableButton.cpp \
 		src/main.cpp
 QMAKE_TARGET  = CameraGUI
 DESTDIR       = 
@@ -322,8 +333,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents src/CameraSensor.h src/CameraScreen.h src/CameraControl.h $(DISTDIR)/
-	$(COPY_FILE) --parents src/CameraSensor.cpp src/CameraScreen.cpp src/CameraControl.cpp src/main.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents src/Event.h src/EventHandler.h src/BaseEventSystem.h src/CObject.h src/GPIOButton.h src/FlashEnableButton.h $(DISTDIR)/
+	$(COPY_FILE) --parents src/Event.cpp src/EventHandler.cpp src/BaseEventSystem.cpp src/CObject.cpp src/GPIOButton.cpp src/FlashEnableButton.cpp src/main.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -355,16 +366,8 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -Wall -W -dM -E -o moc_predefs.h /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_CameraScreen.cpp
+compiler_moc_header_make_all:
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_CameraScreen.cpp
-moc_CameraScreen.cpp: src/CameraSensor.h \
-		src/CameraControl.h \
-		src/CameraScreen.h \
-		moc_predefs.h \
-		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/pi/CameraGUI/moc_predefs.h -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I/home/pi/CameraGUI -I/usr/include/arm-linux-gnueabihf/qt5 -I/usr/include/arm-linux-gnueabihf/qt5/QtWidgets -I/usr/include/arm-linux-gnueabihf/qt5/QtGui -I/usr/include/arm-linux-gnueabihf/qt5/QtCore -I/usr/include/c++/8 -I/usr/include/arm-linux-gnueabihf/c++/8 -I/usr/include/c++/8/backward -I/usr/lib/gcc/arm-linux-gnueabihf/8/include -I/usr/local/include -I/usr/lib/gcc/arm-linux-gnueabihf/8/include-fixed -I/usr/include/arm-linux-gnueabihf -I/usr/include src/CameraScreen.h -o moc_CameraScreen.cpp
-
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
@@ -377,28 +380,53 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean 
+compiler_clean: compiler_moc_predefs_clean 
 
 ####### Compile
 
-CameraSensor.o: src/CameraSensor.cpp src/CameraSensor.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o CameraSensor.o src/CameraSensor.cpp
+Event.o: src/Event.cpp src/Event.h \
+		src/EventHandler.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Event.o src/Event.cpp
 
-CameraScreen.o: src/CameraScreen.cpp src/CameraScreen.h \
-		src/CameraSensor.h \
-		src/CameraControl.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o CameraScreen.o src/CameraScreen.cpp
+EventHandler.o: src/EventHandler.cpp src/EventHandler.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o EventHandler.o src/EventHandler.cpp
 
-CameraControl.o: src/CameraControl.cpp src/CameraControl.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o CameraControl.o src/CameraControl.cpp
+BaseEventSystem.o: src/BaseEventSystem.cpp src/BaseEventSystem.h \
+		src/EventHandler.h \
+		src/Event.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o BaseEventSystem.o src/BaseEventSystem.cpp
+
+CObject.o: src/CObject.cpp src/CObject.h \
+		src/EventHandler.h \
+		src/BaseEventSystem.h \
+		src/Event.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o CObject.o src/CObject.cpp
+
+GPIOButton.o: src/GPIOButton.cpp src/GPIOButton.h \
+		src/CObject.h \
+		src/EventHandler.h \
+		src/BaseEventSystem.h \
+		src/Event.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o GPIOButton.o src/GPIOButton.cpp
+
+FlashEnableButton.o: src/FlashEnableButton.cpp src/FlashEnableButton.h \
+		src/GPIOButton.h \
+		src/CObject.h \
+		src/EventHandler.h \
+		src/BaseEventSystem.h \
+		src/Event.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o FlashEnableButton.o src/FlashEnableButton.cpp
 
 main.o: src/main.cpp src/CameraScreen.h \
 		src/CameraSensor.h \
-		src/CameraControl.h
+		src/CameraControl.h \
+		src/FlashEnableButton.h \
+		src/GPIOButton.h \
+		src/CObject.h \
+		src/EventHandler.h \
+		src/BaseEventSystem.h \
+		src/Event.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o src/main.cpp
-
-moc_CameraScreen.o: moc_CameraScreen.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_CameraScreen.o moc_CameraScreen.cpp
 
 ####### Install
 

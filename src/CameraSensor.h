@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <dirent.h>
 
+#define IMAGE_PATH "/home/pi/Pictures/"
+
 #define STREAM_WIDTH 640
 #define STREAM_HEIGHT 480
 
@@ -27,6 +29,10 @@ public:
     int bufferLen; //length of buffer
 
     CameraSensor();
+    int initializeSensor(int width, int height, unsigned int pixFormat);
+    int closeSensor();
+
+    int startStreaming();
     int streamFrame();
     int takePicture();
 
@@ -34,11 +40,10 @@ protected:
     int fd; //file descriptor
 
     int xioctl(int fd, int request, void *arg);
-    int initializeSensor(int width, int height, unsigned int pixFormat);
     int setupSensor(int width, int height, unsigned int pixFormat);
-    int closeSensor();
     int initBufferCamera();
-    int numFilesDir(char *path);
+    int writeImage(void *buffer, int bufferLen, const char *path);
+    int numFilesDir(const char *path);
 };
 
 #endif
