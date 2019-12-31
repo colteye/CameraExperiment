@@ -8,16 +8,12 @@ GPIOButton::GPIOButton(int g)
     pastStatus = LOW;
 }
 
-void GPIOButton::onStart() { }
-
 void GPIOButton::perFrame()
 {
     currentStatus = digitalRead(gpio);
     if (checkClick(gpio, pastStatus, currentStatus) == 1) onClick();
     pastStatus = currentStatus;
 }
-
-void GPIOButton::onClose() { }
 
 int GPIOButton::checkClick(int gpio, int pastStatus, int currentStatus)
 {

@@ -10,7 +10,7 @@ FlashEnableButton::FlashEnableButton(int g) : GPIOButton(g)
 
 void FlashEnableButton::onClick()
 {
-    puts("swag");
+    puts("clicked");
     if (digitalRead(FLASH_ENABLE_LED) == LOW) digitalWrite(FLASH_ENABLE_LED, HIGH);
     else digitalWrite(FLASH_ENABLE_LED, LOW);
 }

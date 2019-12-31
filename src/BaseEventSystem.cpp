@@ -1,4 +1,14 @@
 #include "BaseEventSystem.h"
+#include <QTimer>
+
+#define FRAMES_PER_SEC 60
+
+BaseEventSystem::BaseEventSystem()
+{
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, QOverload<>::of(&BaseEventSystem::updateEvent));
+    timer->start((int)(1000/FRAMES_PER_SEC));
+}
 
 void BaseEventSystem::subscribeToEvent(EventHandler* handler)
 {
@@ -10,15 +20,13 @@ void BaseEventSystem::executeEvent(int eventType)
     events[eventType].invoke();
 }
 
-void BaseEventSystem::baseControlFlow()
+void BaseEventSystem::startEvent()
 {
-    events[ON_START].invoke();
+    executeEvent(ON_START);
+    puts("starting");
+}
 
-    while (shutdown != 1)
-    {
-        events[PER_FRAME].invoke();
-        //delay(1000/FRAMES_PER_SEC);
-    }
-
-    events[ON_CLOSE].invoke();
+void BaseEventSystem::updateEvent()
+{
+    executeEvent(PER_FRAME);
 }

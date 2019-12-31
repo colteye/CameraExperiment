@@ -6,8 +6,6 @@
 #include <QWidget>
 #include <QTime>
 #include <QTimer>
-#include "CameraSensor.h"
-#include "CameraControl.h"
 
 class CameraScreen : public QWidget
 {
@@ -15,13 +13,11 @@ class CameraScreen : public QWidget
 
 public:
     CameraScreen(QWidget *parent = nullptr);
-
+    void setDimensions(int w, int h);
+    void newFrame(void* buffer, int bufferLen);
 protected:
     QLabel* label;
-    CameraSensor camera;
-    CameraControl controller;
-    void paintEvent(QPaintEvent *event) override;
-    QPixmap newFrame();
+    int newHeight, newWidth;
 };
 
 #endif

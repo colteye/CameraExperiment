@@ -2,15 +2,14 @@
 #define BASE_EVENT_SYSTEM_H_
 
 #include <vector>
+#include <QObject>
 #include "EventHandler.h"
 #include "Event.h"
 
-#define FRAMES_PER_SEC 60
-
-class BaseEventSystem
+class BaseEventSystem : public QObject
 {
 public:
-    enum cameraEvents {
+    enum cameraEvents : int {
         ON_START = 0,
         PER_FRAME,
         ON_CLOSE,
@@ -18,13 +17,13 @@ public:
         ON_MODE_SWITCH
     };
 
+    BaseEventSystem();
     void subscribeToEvent(EventHandler* handler);
     void executeEvent(int eventType);
-    void baseControlFlow();
+    void startEvent();
+    void updateEvent();
 
 private:
-    int shutdown = 0;
-
     // Events are in same order as enum
     Event events[5]; // Keep track Of this whenever adding to enum.
 };

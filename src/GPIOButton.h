@@ -12,9 +12,7 @@ public:
 protected:
     int gpio;
     GPIOButton(int g);
-    void onStart();
     void perFrame();
-    void onClose();
 
 private:
     int pastStatus, currentStatus;

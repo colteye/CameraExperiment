@@ -1,31 +1,25 @@
 #include "CameraScreen.h"
-#include <time.h>
+
+#define SCALE_FACTOR 1.5
 
 CameraScreen::CameraScreen(QWidget *parent) : QWidget(parent)
 {
     label = new QLabel("camera frame", this);
-    label->setGeometry(0, 0, STREAM_WIDTH, STREAM_HEIGHT);
-
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, QOverload<>::of(&CameraScreen::update));
-    timer->start((int)(1000/FRAMES_PER_SEC));
-
     setWindowFlags( Qt::Window | Qt::FramelessWindowHint);
-    resize(STREAM_WIDTH, STREAM_HEIGHT);
-
-    controller.initialize(&camera);
 }
 
-void CameraScreen::paintEvent(QPaintEvent *)
+void CameraScreen::setDimensions(int w, int h)
 {
-    controller.controlLoop(); //Should be the first command, can cause trouble if not.
-    if (controller.getMode() == STREAM_MODE) label->setPixmap(newFrame());
+    newWidth = w * SCALE_FACTOR;
+    newHeight = h * SCALE_FACTOR;
+    label->setGeometry(0, 0, newWidth, newHeight);
+    resize(newWidth, newHeight);
 }
 
-QPixmap CameraScreen::newFrame()
+void CameraScreen::newFrame(void* buffer, int bufferLen)
 {
-    QPixmap p = QPixmap();
-    camera.streamFrame();
-    p.loadFromData((const uchar *)camera.buffer, camera.bufferLen, 0, Qt::AutoColor);
-    return p;
+    QPixmap frame = QPixmap();
+    frame.loadFromData((const uchar *)buffer, bufferLen, 0, Qt::AutoColor);
+    label->setPixmap(frame.scaled(newWidth, newHeight));
+    label->repaint();
 }

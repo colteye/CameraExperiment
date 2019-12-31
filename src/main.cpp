@@ -1,4 +1,5 @@
 #include <QApplication>
+#include "CameraSensor.h"
 #include "CameraScreen.h"
 
 #include <wiringPi.h>
@@ -9,21 +10,20 @@
 
 int main(int argc, char *argv[]) {
 
+QApplication app(argc, argv); // Init GUI app
+
 wiringPiSetup(); // Needed for GPIO
 BaseEventSystem* baseSystem = new BaseEventSystem(); // Basic Event System
 
-// All objects must be registered before starting the control flow.
+// All objects must be constructed + registered before starting the control flow.
 FlashEnableButton flashEnable = FlashEnableButton(FLASH_ENABLE_BUTTON);
+CameraSensor sensor;
+
+// Registering CObjects.
+sensor.registerObject(baseSystem);
 flashEnable.registerObject(baseSystem);
 
-baseSystem->baseControlFlow();
-
-delete baseSystem;
-
-/*    QApplication app(argc, argv);
-    CameraScreen screen; 
-    screen.show();
-
-    return app.exec();  */
-return 0;
+// Execute GUI, start control flow.
+baseSystem->startEvent();
+return app.exec();
 }

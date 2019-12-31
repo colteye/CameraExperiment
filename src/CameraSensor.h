@@ -11,33 +11,38 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <dirent.h>
+#include "CObject.h"
+#include "CameraScreen.h"
 
 #define IMAGE_PATH "/home/pi/Pictures/"
 
-#define STREAM_WIDTH 640
-#define STREAM_HEIGHT 480
+#define STREAM_WIDTH 480
+#define STREAM_HEIGHT 320
 
 #define CAPTURE_WIDTH 3280
 #define CAPTURE_HEIGHT 2464
 
-#define FRAMES_PER_SEC 60
-
-class CameraSensor
+class CameraSensor : public CObject
 {
 public:
+    CameraSensor();
+    void onStart();
+    void perFrame();
+    void onClose();
+    void onCapture();
+
+protected:
+    CameraScreen screen;
+    int fd; //file descriptor
     void *buffer; //image buffer for capturing
     int bufferLen; //length of buffer
 
-    CameraSensor();
     int initializeSensor(int width, int height, unsigned int pixFormat);
     int closeSensor();
 
     int startStreaming();
     int streamFrame();
     int takePicture();
-
-protected:
-    int fd; //file descriptor
 
     int xioctl(int fd, int request, void *arg);
     int setupSensor(int width, int height, unsigned int pixFormat);
@@ -47,5 +52,3 @@ protected:
 };
 
 #endif
-
-

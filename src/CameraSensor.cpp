@@ -2,7 +2,34 @@
 
 CameraSensor::CameraSensor()
 {
+    screen.setDimensions(STREAM_WIDTH, STREAM_HEIGHT);
+    screen.show();
+}
+
+void CameraSensor::onStart()
+{
+    puts("swaggod");
+
     startStreaming();
+}
+
+void CameraSensor::perFrame()
+{
+    streamFrame();
+    if (buffer != NULL)
+    {
+      screen.newFrame(buffer, bufferLen);
+    }
+}
+
+void CameraSensor::onClose()
+{
+    closeSensor();
+}
+
+void CameraSensor::onCapture()
+{
+    takePicture();
 }
 
 int CameraSensor::startStreaming()
@@ -54,7 +81,7 @@ int CameraSensor::setupSensor(int width, int height, unsigned int pixFormat)
     return 0;
 }
 
-int CameraSensor::initBufferCamera() 
+int CameraSensor::initBufferCamera()
 {
     struct v4l2_requestbuffers req = {0};
     req.count = 1;
